@@ -18,11 +18,11 @@ class TransitionTable(object):
         term = []
 
         for i in range(size):
-            s[i] = samples[i][0]
-            a[i] = samples[i][1]
-            r[i] = samples[i][2]
-            s2[i] = samples[i][3]
-            term[i] = samples[i][4]
+            s.append(samples[i][0])
+            a.append(samples[i][1])
+            r.append(samples[i][2])
+            s2.append(samples[i][3])
+            term.append(samples[i][4])
 
         s = tf.stack(s)
         a = tf.stack(a)
@@ -33,5 +33,5 @@ class TransitionTable(object):
         return s, a, r, s2, term
 
     def add(self, s, a, r, s2, is_term):
-        term = 1 if is_term else 0
+        term = 1. if is_term else 0.
         self.transitions.append((s, a, r, s2, term))
