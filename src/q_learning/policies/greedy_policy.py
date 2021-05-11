@@ -10,5 +10,6 @@ class GreedyPolicy(Policy):
         actions = self.q_network(observation)
 
         best_action = tf.math.argmax(actions[0], axis=0)
+        best_action = tf.cast(best_action, dtype=tf.int32)
 
         return best_action
