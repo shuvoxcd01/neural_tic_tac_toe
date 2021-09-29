@@ -105,13 +105,15 @@ class QLearning:
             if step % self.target_q_network_update_interval == 0:
                 for agent in self.agents.values():
                     agent.q_network = DQN.clone(agent.target_q_network)
-                    print(f"[{agent.name}] q_network updated.")
+                    print(f"[Agent: {agent.name}] [Step: {step}] q_network updated.")
 
             if step % self.log_interval == 0:
-                print("Step: ", step)
-                for agent in self.agents.values():
-                    print(f"[{agent.name}] Loss: ", self.compute_loss(agent, 5))
-                    print(f"[{agent.name}] epsilon: ", agent.behavior_policy.epsilon)
+                with self.file_writer.as_default():
+                    for agent in self.agents.values():
+                        loss = self.compute_loss(agent, 5)
+                        tf.summary.scalar(f"[{agent.name}] Loss", loss, step=step)
+                        tf.summary.scalar(f"[{agent.name}] Epsilon", agent.behavior_policy.epsilon, step=step)
+                        tf.summary.flush()
 
             if step % self.eval_interval == 0:
                 avg_return_per_ep = self.evaluate()
@@ -120,7 +122,7 @@ class QLearning:
                         agent_name = agent.name
                         tf.summary.scalar(f"[{agent_name}] Average return per episode", avg_return_per_ep[agent_name],
                                           step=step)
-                    tf.summary.flush()
+                        tf.summary.flush()
 
             if step % self.model_saving_interval == 0:
                 for agent in self.agents.values():
