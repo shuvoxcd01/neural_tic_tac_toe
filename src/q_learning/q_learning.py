@@ -1,20 +1,26 @@
+import os
+from datetime import datetime
+
 import gym
 
+from src.q_learning.logs import tf_log_parent_dir
 from src.q_learning.network.dqn import DQN
 from src.q_learning.policies.epsilon_greedy_policy import EpsilonGreedyPolicy
 from src.q_learning.policies.greedy_policy import GreedyPolicy
 import tensorflow as tf
 
+from src.q_learning.saved_models import saved_model_parent_dir
 from src.q_learning.transition_table.transition_table import TransitionTable
 
 
 class QLearning:
-    def __init__(self, env: gym.Env, input_shape, num_actions):
+    def __init__(self, env: gym.Env, input_shape, num_actions, model=None):
         self.env = env
         self.num_actions = num_actions
         self.input_shape = input_shape
         self.transition_table = TransitionTable()
-        self.q_network = DQN.get_q_network(input_shape=self.input_shape, num_actions=self.num_actions)
+        self.q_network = DQN.get_q_network(input_shape=self.input_shape,
+                                           num_actions=self.num_actions) if model is None else model
         self.target_q_network = DQN.clone(self.q_network)
 
         self.behavior_policy = EpsilonGreedyPolicy(q_network=self.q_network)
@@ -25,9 +31,16 @@ class QLearning:
         self.batch_size = 64
 
         self.optimizer = tf.optimizers.SGD(learning_rate=self.learning_rate)
-        self.target_q_network_update_interval = 100
-        self.eval_interval = 50
-        self.log_interval = 20
+        self.target_q_network_update_interval = 500
+        self.eval_interval = 2000
+        self.log_interval = 200
+
+        date_time_now = datetime.now().strftime("%Y%m%d-%H%M%S")
+        self.dir_to_save_models = os.path.join(saved_model_parent_dir, date_time_now)
+        self.tf_log_dir = os.path.join(tf_log_parent_dir, date_time_now)
+        self.file_writer = tf.summary.create_file_writer(logdir=self.tf_log_dir)
+
+        self.model_saving_interval = 5000
 
     def collect_episode(self, num_episodes):
         cur_episode_num = 0
@@ -61,28 +74,39 @@ class QLearning:
         return loss
 
     def train(self, num_iterations):
-
         self.collect_episode(100)
-
         step = 0
 
-        while step < num_iterations:
+        while step <= num_iterations:
+            step += 1
             self.collect_episode(1)
             self.train_one_step(batch_size=self.batch_size)
 
             if step % self.target_q_network_update_interval == 0:
                 self.q_network = DQN.clone(self.target_q_network)
-                print("q_network updated.")
+                print(f"Step {step}: q_network updated.")
 
             if step % self.log_interval == 0:
-                print("Step: ", step)
-                print("Loss: ", self.compute_loss(5))
-                print("epsilon: ", self.behavior_policy.epsilon)
+                loss = self.compute_loss(5)
+
+                with self.file_writer.as_default():
+                    tf.summary.scalar("Loss", loss, step=step)
+                    tf.summary.scalar("Epsilon", self.behavior_policy.epsilon, step=step)
+                    tf.summary.flush()
 
             if step % self.eval_interval == 0:
-                print("Average return per episode: ", self.evaluate())
+                avg_return_per_ep = self.evaluate()
 
-            step += 1
+                with self.file_writer.as_default():
+                    tf.summary.scalar("Average return per episode", avg_return_per_ep, step=step)
+                    tf.summary.flush()
+
+            if step % self.model_saving_interval == 0:
+                DQN.save_model(model=self.target_q_network, saved_model_dir=self.dir_to_save_models,
+                               saved_model_name=str(step))
+                print(f"Step {step}: Target network saved.")
+
+        DQN.save_model(model=self.target_q_network, saved_model_dir=self.dir_to_save_models, saved_model_name=str(step))
 
     def evaluate(self, num_episodes=5):
         cur_episode_num = 0
