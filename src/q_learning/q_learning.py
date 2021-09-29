@@ -125,12 +125,12 @@ class QLearning:
             if step % self.model_saving_interval == 0:
                 for agent in self.agents.values():
                     DQN.save_model(model=agent.target_q_network, saved_model_dir=self.dir_to_save_models,
-                                   saved_model_name=agent.name + str(step))
+                                   saved_model_name=agent.name + "_" + str(step))
                     print(f"[{agent.name}] Step {step}: Target network saved.")
 
         for agent in self.agents.values():
             DQN.save_model(model=agent.target_q_network, saved_model_dir=self.dir_to_save_models,
-                           saved_model_name=agent.name + str(step))
+                           saved_model_name=agent.name + "_" + str(step))
 
     def evaluate(self, num_episodes=5):
         cur_episode_num = 0
