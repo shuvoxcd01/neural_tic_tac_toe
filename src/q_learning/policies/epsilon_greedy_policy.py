@@ -1,5 +1,7 @@
 import random
 
+import numpy as np
+
 from src.q_learning.policies.policy import Policy
 import tensorflow as tf
 
@@ -15,12 +17,15 @@ class EpsilonGreedyPolicy(Policy):
         self.epsilon_endt = epsilon_endt
         self.epsilon_decay_rate = (epsilon_start - epsilon_end) / epsilon_endt
 
-    def get_action(self, observation):
+    def get_action(self, observation, action_mask):
         if random.random() <= self.epsilon:
-            action = tf.constant(random.randrange(self.num_moves))
+            binary_mask = action_mask.astype(bool)
+            valid_actions = np.arange(self.num_moves)[binary_mask]
+            action = tf.constant(random.choice(valid_actions))
         else:
-            actions = self.q_network(observation)
-            action = tf.math.argmax(actions[0], axis=0)
+            actions = self.q_network(observation)[0]
+            actions = tf.nn.softmax(actions) * action_mask
+            action = tf.math.argmax(actions, axis=0)
             action = tf.cast(action, dtype=tf.int32)
 
         self.update_epsilon()
