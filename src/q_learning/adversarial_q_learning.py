@@ -32,6 +32,9 @@ class AdversarialQLearning:
         while step <= num_iterations:
             step += 1
 
+            self.agent_1.clear_transition_table()
+            self.agent_2.clear_transition_table()
+
             agent_1_copy = self.agent_1.clone(set_trainable=False)
             agent_2_copy = self.agent_2.clone(set_trainable=False)
 
