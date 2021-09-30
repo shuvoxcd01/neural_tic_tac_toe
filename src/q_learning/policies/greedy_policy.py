@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+from src.q_learning.network.dqn import DQN
 from src.q_learning.policies.policy import Policy
 
 
@@ -15,3 +16,9 @@ class GreedyPolicy(Policy):
         best_action = tf.cast(best_action, dtype=tf.int32)
 
         return best_action
+
+    def get_q_network(self):
+        return DQN.clone(self.q_network)
+
+    def set_q_network(self, q_network):
+        self.q_network = q_network

@@ -1,9 +1,10 @@
 import random
 
 import numpy as np
-
-from src.q_learning.policies.policy import Policy
 import tensorflow as tf
+
+from src.q_learning.network.dqn import DQN
+from src.q_learning.policies.policy import Policy
 
 
 class EpsilonGreedyPolicy(Policy):
@@ -35,3 +36,9 @@ class EpsilonGreedyPolicy(Policy):
     def update_epsilon(self):
         self.epsilon = self.epsilon_end if self.epsilon <= self.epsilon_end else (
                 self.epsilon - self.epsilon_decay_rate)
+
+    def get_q_network(self):
+        return DQN.clone(self.q_network)
+
+    def set_q_network(self, q_network):
+        self.q_network = q_network
