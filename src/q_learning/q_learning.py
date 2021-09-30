@@ -89,7 +89,7 @@ class QLearning:
         loss = tf.losses.MSE(y_true=target_q_values, y_pred=predicted_q_values)
         return loss
 
-    def train(self, num_iterations):
+    def train(self, num_iterations, caller_step):
         self.collect_episode(100)
         step = 0
 
@@ -101,49 +101,14 @@ class QLearning:
             if step % self.target_q_network_update_interval == 0:
                 for agent in self.trainable_agents:
                     agent.q_network = DQN.clone(agent.target_q_network)
-                    print(f"[Agent: {agent.name}] [Step: {step}] q_network updated.")
+                    # print(f"[Agent: {agent.name}] [Step: {step}] q_network updated.")
 
             if step % self.log_interval == 0:
+                num_total_steps = (caller_step - 1) * num_iterations + step
                 with self.file_writer.as_default():
                     for agent in self.trainable_agents:
                         loss = self.compute_loss(agent, 5)
-                        tf.summary.scalar(f"[{agent.name}] Loss", loss, step=step)
-                        tf.summary.scalar(f"[{agent.name}] Epsilon", agent.behavior_policy.epsilon, step=step)
+                        tf.summary.scalar(f"[{agent.name}] Loss", loss, step=num_total_steps)
+                        tf.summary.scalar(f"[{agent.name}] Epsilon", agent.behavior_policy.epsilon,
+                                          step=num_total_steps)
                         tf.summary.flush()
-
-    def evaluate(self, num_episodes=5):
-        cur_episode_num = 0
-        total_return = {}
-        for agent in self.agents.values():
-            total_return[agent.name] = 0
-
-        while cur_episode_num < num_episodes:
-            self.env.reset()
-
-            episode_return = {}
-            for agent in self.agents.values():
-                episode_return[agent.name] = 0
-
-            for agent_name in self.env.agent_iter():
-                agent = self.agents[agent_name]
-
-                observation_with_action_mask, reward, done, _ = self.env.last(observe=True)
-                episode_return[agent_name] += reward
-                observation = observation_with_action_mask["observation"]
-                action_mask = observation_with_action_mask["action_mask"]
-
-                action = agent.target_policy.get_action(tf.expand_dims(tf.identity(observation), 0),
-                                                        action_mask).numpy() if not done else None
-
-                self.env.step(action)
-
-            for agent in self.agents.values():
-                total_return[agent.name] += episode_return[agent.name]
-
-            cur_episode_num += 1
-
-        average_return_per_episode = {}
-        for agent in self.agents.values():
-            average_return_per_episode[agent.name] = total_return[agent.name] / float(num_episodes)
-
-        return average_return_per_episode

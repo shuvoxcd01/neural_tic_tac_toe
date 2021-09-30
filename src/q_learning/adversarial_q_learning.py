@@ -18,14 +18,14 @@ class AdversarialQLearning:
         self.agent_1 = agent_1
         self.agent_2 = agent_2
 
-        self.eval_interval = 1
+        self.eval_interval = 100
 
         date_time_now = datetime.now().strftime("%Y%m%d-%H%M%S")
         self.dir_to_save_models = os.path.join(saved_model_parent_dir, date_time_now, "adversarial_training")
         self.tf_log_dir = os.path.join(tf_log_parent_dir, date_time_now)
         self.file_writer = tf.summary.create_file_writer(logdir=self.tf_log_dir)
 
-        self.model_saving_interval = 1
+        self.model_saving_interval = 100
 
     def train_adversarial(self, num_iterations: int):
         step = 0
@@ -43,7 +43,7 @@ class AdversarialQLearning:
             for adversarial_agent_pair in adversarial_agent_pairs:
                 q_learning = QLearning(env=self.env, num_actions=self.num_actions, agents=adversarial_agent_pair,
                                        tf_log_dir=self.tf_log_dir, file_writer=self.file_writer)
-                q_learning.train(1000)
+                q_learning.train(1000, caller_step=step)
 
             agents = [self.agent_1, self.agent_2]
 

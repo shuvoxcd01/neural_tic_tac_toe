@@ -6,6 +6,7 @@ from pettingzoo.classic import tictactoe_v3
 #     print('GPU found')
 # else:
 #     print("No GPU found")
+
 from src.q_learning.adversarial_q_learning import AdversarialQLearning
 from src.q_learning.agent.agent import Agent
 from src.q_learning.network.dqn import DQN
@@ -25,7 +26,7 @@ for agent_name in env.agents:
     q_network = DQN.get_q_network(input_shape=input_shape, num_actions=num_actions)
     target_q_network = DQN.clone(q_network)
     transition_table = TransitionTable()
-    behavior_policy = EpsilonGreedyPolicy(q_network=q_network)
+    behavior_policy = EpsilonGreedyPolicy(q_network=q_network, epsilon_end=0.2)
     target_policy = GreedyPolicy(q_network=target_q_network)
     agent = Agent(q_network=q_network, target_q_network=target_q_network, transition_table=transition_table,
                   behavior_policy=behavior_policy, target_policy=target_policy, agent_name=agent_name)
@@ -38,4 +39,4 @@ agent_1 = agents[0]
 agent_2 = agents[1]
 
 adversarial_q_learning = AdversarialQLearning(env=env, num_actions=num_actions, agent_1=agent_1, agent_2=agent_2)
-adversarial_q_learning.train_adversarial(num_iterations=10)
+adversarial_q_learning.train_adversarial(num_iterations=1000)
