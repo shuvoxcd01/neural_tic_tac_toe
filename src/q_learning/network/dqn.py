@@ -11,6 +11,8 @@ class DQN:
         model = Sequential()
         model.add(InputLayer(input_shape=input_shape))
         model.add(Flatten())
+        model.add(Dense(units=100, activation="relu"))
+        model.add(Dense(units=250, activation="relu"))
         model.add(Dense(units=100, activation='relu'))
         model.add(Dense(units=50, activation='relu'))
         model.add(Dense(units=num_actions))

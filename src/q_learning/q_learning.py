@@ -1,17 +1,11 @@
-import tensorflow as tf
 import os
 from datetime import datetime
 
-import gym
+import tensorflow as tf
 
 from src.q_learning.logs import tf_log_parent_dir
 from src.q_learning.network.dqn import DQN
-from src.q_learning.policies.epsilon_greedy_policy import EpsilonGreedyPolicy
-from src.q_learning.policies.greedy_policy import GreedyPolicy
-
-from src.q_learning.network.dqn import DQN
 from src.q_learning.saved_models import saved_model_parent_dir
-from src.q_learning.transition_table.transition_table import TransitionTable
 
 
 class QLearning:
@@ -111,27 +105,34 @@ class QLearning:
             if step % self.target_q_network_update_interval == 0:
                 for agent in self.agents.values():
                     agent.q_network = DQN.clone(agent.target_q_network)
-                    print(f"[{agent.name}] q_network updated.")
+                    print(f"[Agent: {agent.name}] [Step: {step}] q_network updated.")
 
             if step % self.log_interval == 0:
-                print("Step: ", step)
-                for agent in self.agents.values():
-                    print(f"[{agent.name}] Loss: ", self.compute_loss(agent, 5))
-                    print(f"[{agent.name}] epsilon: ", agent.behavior_policy.epsilon)
+                with self.file_writer.as_default():
+                    for agent in self.agents.values():
+                        loss = self.compute_loss(agent, 5)
+                        tf.summary.scalar(f"[{agent.name}] Loss", loss, step=step)
+                        tf.summary.scalar(f"[{agent.name}] Epsilon", agent.behavior_policy.epsilon, step=step)
+                        tf.summary.flush()
 
             if step % self.eval_interval == 0:
                 avg_return_per_ep = self.evaluate()
-
                 with self.file_writer.as_default():
-                    tf.summary.scalar("Average return per episode", avg_return_per_ep, step=step)
-                    tf.summary.flush()
+                    for agent in self.agents.values():
+                        agent_name = agent.name
+                        tf.summary.scalar(f"[{agent_name}] Average return per episode", avg_return_per_ep[agent_name],
+                                          step=step)
+                        tf.summary.flush()
 
             if step % self.model_saving_interval == 0:
-                DQN.save_model(model=self.target_q_network, saved_model_dir=self.dir_to_save_models,
-                               saved_model_name=str(step))
-                print(f"Step {step}: Target network saved.")
+                for agent in self.agents.values():
+                    DQN.save_model(model=agent.target_q_network, saved_model_dir=self.dir_to_save_models,
+                                   saved_model_name=agent.name + "_" + str(step))
+                    print(f"[{agent.name}] Step {step}: Target network saved.")
 
-        DQN.save_model(model=self.target_q_network, saved_model_dir=self.dir_to_save_models, saved_model_name=str(step))
+        for agent in self.agents.values():
+            DQN.save_model(model=agent.target_q_network, saved_model_dir=self.dir_to_save_models,
+                           saved_model_name=agent.name + "_" + str(step))
 
     def evaluate(self, num_episodes=5):
         cur_episode_num = 0
