@@ -29,3 +29,6 @@ class Agent:
             cloned_agent.trainable = set_trainable
 
         return cloned_agent
+
+    def clear_transition_table(self):
+        self.transition_table.clear()

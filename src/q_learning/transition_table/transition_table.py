@@ -35,3 +35,6 @@ class TransitionTable(object):
     def add(self, s, a, r, s2, is_term):
         term = 1. if is_term else 0.
         self.transitions.append((s, a, r, s2, term))
+
+    def clear(self):
+        self.transitions.clear()
