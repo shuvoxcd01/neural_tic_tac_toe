@@ -1,11 +1,12 @@
 from pettingzoo.classic import tictactoe_v3
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-#
-# if tf.test.gpu_device_name():
-#     print('GPU found')
-# else:
-#     print("No GPU found")
+import tensorflow as tf
+if tf.test.gpu_device_name():
+    print('GPU found')
+else:
+    print("No GPU found")
 from src.q_learning.agent.agent import Agent
 from src.q_learning.network.dqn import DQN
 from src.q_learning.policies.epsilon_greedy_policy import EpsilonGreedyPolicy
@@ -36,4 +37,4 @@ env.reset()
 
 q_learning = QLearning(env=env, num_actions=num_actions, agents=agents)
 
-q_learning.train(3000)
+q_learning.train(1000000)

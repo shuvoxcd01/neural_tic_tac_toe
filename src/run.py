@@ -3,12 +3,13 @@ import os
 import tensorflow as tf
 from pettingzoo.classic import tictactoe_v3
 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-#
-# if tf.test.gpu_device_name():
-#     print('GPU found')
-# else:
-#     print("No GPU found")
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
+if tf.test.gpu_device_name():
+    print('GPU found')
+else:
+    print("No GPU found")
+
 from src.q_learning.agent.agent import Agent
 from src.q_learning.network.dqn import DQN
 from src.q_learning.policies.greedy_policy import GreedyPolicy
@@ -24,7 +25,7 @@ num_actions = 9
 agents = {}
 
 q_network = DQN.get_q_network(input_shape=input_shape, num_actions=num_actions)
-saved_model_path = os.path.join(saved_model_parent_dir, "20210929-201050", "player_13001")
+saved_model_path = os.path.join(saved_model_parent_dir, "20210929-233019", "player_1_845000")
 target_q_network = tf.keras.models.load_model(saved_model_path)
 
 target_policy = GreedyPolicy(q_network=target_q_network)
@@ -42,6 +43,7 @@ env.reset()
 env.render()
 for _ in env.agent_iter():
     for agent in agents.values():
+        print(agent.name)
         observation_with_action_mask, reward, done, _ = env.last(observe=True)
 
         observation = observation_with_action_mask["observation"]
