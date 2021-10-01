@@ -3,8 +3,8 @@ import random
 import numpy as np
 import tensorflow as tf
 
-from src.q_learning.network.dqn import DQN
-from src.q_learning.policies.policy import Policy
+from src.adversarial_q_learning.network.dqn import DQN
+from src.adversarial_q_learning.policies.policy import Policy
 
 
 class EpsilonGreedyPolicy(Policy):

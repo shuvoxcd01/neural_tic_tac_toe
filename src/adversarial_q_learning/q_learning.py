@@ -2,7 +2,7 @@ from typing import Dict, List
 
 import tensorflow as tf
 
-from src.q_learning.network.dqn import DQN
+from src.adversarial_q_learning.network.dqn import DQN
 
 GLOBAL_STEP_COUNTER = {}
 

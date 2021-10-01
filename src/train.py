@@ -1,11 +1,11 @@
 from pettingzoo.classic import tictactoe_v3
 
-from src.q_learning.adversarial_q_learning import AdversarialQLearning
-from src.q_learning.agent.adversarial_q_learning_agent import AdversarialQLearningAgent
-from src.q_learning.network.dqn import DQN
-from src.q_learning.policies.epsilon_greedy_policy import EpsilonGreedyPolicy
-from src.q_learning.policies.greedy_policy import GreedyPolicy
-from src.q_learning.transition_table.transition_table import TransitionTable
+from src.adversarial_q_learning.adversarial_q_learning import AdversarialQLearning
+from src.adversarial_q_learning.agent.adversarial_q_learning_agent import AdversarialQLearningAgent
+from src.adversarial_q_learning.network.dqn import DQN
+from src.adversarial_q_learning.policies.epsilon_greedy_policy import EpsilonGreedyPolicy
+from src.adversarial_q_learning.policies.greedy_policy import GreedyPolicy
+from src.adversarial_q_learning.transition_table.transition_table import TransitionTable
 
 # import os
 # os.environ['CUDA_VISIBLE_DEVICES'] = '-1'

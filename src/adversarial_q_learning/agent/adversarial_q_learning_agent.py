@@ -1,11 +1,11 @@
 import copy
 from typing import Optional
 
-from src.q_learning.agent.agent import Agent
-from src.q_learning.network.dqn import DQN
-from src.q_learning.policies.epsilon_greedy_policy import EpsilonGreedyPolicy
-from src.q_learning.policies.greedy_policy import GreedyPolicy
-from src.q_learning.transition_table.transition_table import TransitionTable
+from src.adversarial_q_learning.agent.agent import Agent
+from src.adversarial_q_learning.network.dqn import DQN
+from src.adversarial_q_learning.policies.epsilon_greedy_policy import EpsilonGreedyPolicy
+from src.adversarial_q_learning.policies.greedy_policy import GreedyPolicy
+from src.adversarial_q_learning.transition_table.transition_table import TransitionTable
 
 
 class AdversarialQLearningAgent(Agent):

@@ -10,11 +10,11 @@ if tf.test.gpu_device_name():
 else:
     print("No GPU found")
 
-from src.q_learning.agent.agent import Agent
-from src.q_learning.network.dqn import DQN
-from src.q_learning.policies.greedy_policy import GreedyPolicy
-from src.q_learning.policies.human_policy import HumanPolicy
-from src.q_learning.saved_models import saved_model_parent_dir
+from src.adversarial_q_learning.agent.agent import Agent
+from src.adversarial_q_learning.network.dqn import DQN
+from src.adversarial_q_learning.policies.greedy_policy import GreedyPolicy
+from src.adversarial_q_learning.policies.human_policy import HumanPolicy
+from src.adversarial_q_learning.saved_models import saved_model_parent_dir
 
 env = tictactoe_v3.env()
 env.reset()
@@ -23,7 +23,7 @@ input_shape = (3, 3, 2)
 num_actions = 9
 
 q_network = DQN.get_q_network(input_shape=input_shape, num_actions=num_actions)
-saved_model_path = os.path.join(saved_model_parent_dir, "20210930-232522", "adversarial_training", "player_2_650")
+saved_model_path = os.path.join(saved_model_parent_dir, "20211001-143538", "adversarial_training", "player_2_101")
 target_q_network = tf.keras.models.load_model(saved_model_path)
 
 target_policy = GreedyPolicy(q_network=target_q_network)

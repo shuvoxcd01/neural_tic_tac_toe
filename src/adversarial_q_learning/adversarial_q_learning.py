@@ -3,13 +3,13 @@ from datetime import datetime
 
 import tensorflow as tf
 
-from src.q_learning.agent.adversarial_q_learning_agent import AdversarialQLearningAgent
-from src.q_learning.agent.agent import Agent
-from src.q_learning.logs import tf_log_parent_dir
-from src.q_learning.network.dqn import DQN
-from src.q_learning.policies.random_policy import RandomPolicy
-from src.q_learning.q_learning import QLearning
-from src.q_learning.saved_models import saved_model_parent_dir
+from src.adversarial_q_learning.agent.adversarial_q_learning_agent import AdversarialQLearningAgent
+from src.adversarial_q_learning.agent.agent import Agent
+from src.adversarial_q_learning.logs import tf_log_parent_dir
+from src.adversarial_q_learning.network.dqn import DQN
+from src.adversarial_q_learning.policies.random_policy import RandomPolicy
+from src.adversarial_q_learning.q_learning import QLearning
+from src.adversarial_q_learning.saved_models import saved_model_parent_dir
 
 
 class AdversarialQLearning:
