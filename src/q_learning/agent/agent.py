@@ -32,3 +32,6 @@ class Agent:
 
     def clear_transition_table(self):
         self.transition_table.clear()
+
+    def reset_behavior_policy(self):
+        self.behavior_policy.reset_epsilon()
