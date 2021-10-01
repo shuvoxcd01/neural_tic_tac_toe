@@ -94,6 +94,12 @@ class QLearning:
     def train(self):
         self.collect_episode(100)
         loss = self.get_avg_loss_per_trainable_agent(batch_size=16)
+
+        for agent in self.trainable_agents:
+            agent_step_count = self.get_step_count(agent.name)
+            self.write_logs(agent=agent, step=agent_step_count)
+            self.log_training_start_step_count(agent, agent_step_count)
+
         while loss > 0.01:
             self.increase_step_count([agent.name for agent in self.trainable_agents])
             self.collect_episode(1)
@@ -113,6 +119,11 @@ class QLearning:
             agent_step_count = self.get_step_count(agent.name)
             self.update_q_network(agent=agent)
             self.write_logs(agent=agent, step=agent_step_count)
+
+    def log_training_start_step_count(self, agent, agent_step_count):
+        with self.file_writer.as_default():
+            tf.summary.scalar(f"[{agent.name}] Training Start Step", agent_step_count, step=agent_step_count)
+            tf.summary.flush()
 
     @staticmethod
     def update_q_network(agent):
