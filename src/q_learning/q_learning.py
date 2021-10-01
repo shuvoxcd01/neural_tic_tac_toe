@@ -123,7 +123,7 @@ class QLearning:
 
     def log_training_start_step_count(self, agent, agent_step_count):
         with self.file_writer.as_default():
-            tf.summary.scalar(f"[{agent.name}] Training Start Step", 0, step=agent_step_count)
+            tf.summary.scalar(f"[{agent.name}] Training Start Step", agent_step_count, step=agent_step_count)
             tf.summary.flush()
 
     @staticmethod
