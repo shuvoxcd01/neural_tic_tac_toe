@@ -8,19 +8,20 @@ GLOBAL_STEP_COUNTER = {}
 
 
 class QLearning:
-    def __init__(self, env, num_actions, agents: Dict, tf_log_dir, file_writer):
+    def __init__(self, env, num_actions, agents: Dict, tf_log_dir, file_writer, learning_rate=0.0001, gamma=0.9,
+                 batch_size=64, network_update_interval=500, log_interval=500):
         self.env = env
         self.num_actions = num_actions
         self.agents = agents
         self.trainable_agents = [agent for agent in self.agents.values() if agent.trainable]
 
-        self.gamma = 0.9
-        self.learning_rate = 0.001
-        self.batch_size = 64
+        self.gamma = gamma
+        self.learning_rate = learning_rate
+        self.batch_size = batch_size
 
         self.optimizer = tf.optimizers.SGD(learning_rate=self.learning_rate)
-        self.target_q_network_update_interval = 500
-        self.log_interval = 500
+        self.target_q_network_update_interval = network_update_interval
+        self.log_interval = log_interval
 
         self.tf_log_dir = tf_log_dir
         self.file_writer = file_writer
