@@ -1,8 +1,10 @@
-from typing import Dict
+from typing import Dict, List
 
 import tensorflow as tf
 
 from src.q_learning.network.dqn import DQN
+
+GLOBAL_STEP_COUNTER = {}
 
 
 class QLearning:
@@ -17,7 +19,7 @@ class QLearning:
         self.batch_size = 64
 
         self.optimizer = tf.optimizers.SGD(learning_rate=self.learning_rate)
-        self.target_q_network_update_interval = 250
+        self.target_q_network_update_interval = 500
         self.log_interval = 500
 
         self.tf_log_dir = tf_log_dir
@@ -89,26 +91,60 @@ class QLearning:
         loss = tf.losses.MSE(y_true=target_q_values, y_pred=predicted_q_values)
         return loss
 
-    def train(self, num_iterations, caller_step):
+    def train(self):
         self.collect_episode(100)
-        step = 0
-
-        while step <= num_iterations:
-            step += 1
+        loss = self.get_avg_loss_per_trainable_agent(batch_size=16)
+        while loss > 0.01:
+            self.increase_step_count([agent.name for agent in self.trainable_agents])
             self.collect_episode(1)
             self.train_one_step(batch_size=self.batch_size)
+            loss = self.get_avg_loss_per_trainable_agent(batch_size=16)
 
-            if step % self.target_q_network_update_interval == 0:
-                for agent in self.trainable_agents:
-                    agent.q_network = DQN.clone(agent.target_q_network)
-                    # print(f"[Agent: {agent.name}] [Step: {step}] q_network updated.")
+            for agent in self.trainable_agents:
+                agent_step_count = self.get_step_count(agent.name)
 
-            if step % self.log_interval == 0:
-                num_total_steps = (caller_step - 1) * num_iterations + step
-                with self.file_writer.as_default():
-                    for agent in self.trainable_agents:
-                        loss = self.compute_loss(agent, 5)
-                        tf.summary.scalar(f"[{agent.name}] Loss", loss, step=num_total_steps)
-                        tf.summary.scalar(f"[{agent.name}] Epsilon", agent.behavior_policy.epsilon,
-                                          step=num_total_steps)
-                        tf.summary.flush()
+                if agent_step_count % self.target_q_network_update_interval == 0:
+                    self.update_q_network(agent=agent)
+
+                if agent_step_count % self.log_interval == 0:
+                    self.write_logs(agent=agent, step=agent_step_count)
+
+        for agent in self.trainable_agents:
+            agent_step_count = self.get_step_count(agent.name)
+            self.update_q_network(agent=agent)
+            self.write_logs(agent=agent, step=agent_step_count)
+
+    @staticmethod
+    def update_q_network(agent):
+        agent.q_network = DQN.clone(agent.target_q_network)
+        # print(f"[Agent: {agent.name}] [Step: {step}] q_network updated.")
+
+    def get_avg_loss_per_trainable_agent(self, batch_size):
+        total_loss = 0
+        for agent in self.trainable_agents:
+            agent_loss = self.compute_loss(agent, batch_size)
+            total_loss += agent_loss
+        avg_loss_per_trainable_agent = total_loss / len(self.trainable_agents)
+        return avg_loss_per_trainable_agent
+
+    def write_logs(self, agent, step):
+        with self.file_writer.as_default():
+            loss = self.compute_loss(agent, batch_size=16)
+            tf.summary.scalar(f"[{agent.name}] Loss", loss, step=step)
+            tf.summary.scalar(f"[{agent.name}] Epsilon", agent.behavior_policy.epsilon,
+                              step=step)
+            tf.summary.flush()
+
+    @staticmethod
+    def get_step_count(agent_name):
+        global GLOBAL_STEP_COUNTER
+        step_count = GLOBAL_STEP_COUNTER.get(agent_name, 0)
+        return step_count
+
+    @staticmethod
+    def increase_step_count(agent_names: List):
+        global GLOBAL_STEP_COUNTER
+
+        for agent_name in agent_names:
+            step_count = QLearning.get_step_count(agent_name)
+            GLOBAL_STEP_COUNTER[agent_name] = step_count + 1
