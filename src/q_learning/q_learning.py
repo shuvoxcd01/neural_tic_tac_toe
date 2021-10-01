@@ -37,18 +37,7 @@ class QLearning:
             self.env.reset()
 
             for _ in range(self.env.num_agents):
-                agent_name = self.env.agent_selection
-                agent = self.agents[agent_name]
-                observation_with_action_mask = self.env.observe(agent_name)
-                observation = observation_with_action_mask["observation"]
-                action_mask = observation_with_action_mask["action_mask"]
-                action = agent.behavior_policy.get_action(tf.expand_dims(tf.identity(observation), 0),
-                                                          action_mask).numpy()
-
-                prev_step_info[agent_name]["observation"] = observation
-                prev_step_info[agent_name]["action"] = action
-
-                self.env.step(action)
+                self._run_first_step(prev_step_info)
 
             for agent_name in self.env.agent_iter():
                 agent = self.agents[agent_name]
@@ -73,6 +62,18 @@ class QLearning:
                 self.env.step(action)
 
             cur_episode_num += 1
+
+    def _run_first_step(self, prev_step_info):
+        agent_name = self.env.agent_selection
+        agent = self.agents[agent_name]
+        observation_with_action_mask = self.env.observe(agent_name)
+        observation = observation_with_action_mask["observation"]
+        action_mask = observation_with_action_mask["action_mask"]
+        action = agent.behavior_policy.get_action(tf.expand_dims(tf.identity(observation), 0),
+                                                  action_mask).numpy()
+        prev_step_info[agent_name]["observation"] = observation
+        prev_step_info[agent_name]["action"] = action
+        self.env.step(action)
 
     def train_one_step(self, batch_size=8):
         for agent in self.trainable_agents:
@@ -122,13 +123,12 @@ class QLearning:
 
     def log_training_start_step_count(self, agent, agent_step_count):
         with self.file_writer.as_default():
-            tf.summary.scalar(f"[{agent.name}] Training Start Step", agent_step_count, step=agent_step_count)
+            tf.summary.scalar(f"[{agent.name}] Training Start Step", 0, step=agent_step_count)
             tf.summary.flush()
 
     @staticmethod
     def update_q_network(agent):
         agent.q_network = DQN.clone(agent.target_q_network)
-        # print(f"[Agent: {agent.name}] [Step: {step}] q_network updated.")
 
     def get_avg_loss_per_trainable_agent(self, batch_size):
         total_loss = 0

@@ -1,5 +1,12 @@
 from pettingzoo.classic import tictactoe_v3
 
+from src.q_learning.adversarial_q_learning import AdversarialQLearning
+from src.q_learning.agent.adversarial_q_learning_agent import AdversarialQLearningAgent
+from src.q_learning.network.dqn import DQN
+from src.q_learning.policies.epsilon_greedy_policy import EpsilonGreedyPolicy
+from src.q_learning.policies.greedy_policy import GreedyPolicy
+from src.q_learning.transition_table.transition_table import TransitionTable
+
 # import os
 # os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 # import tensorflow as tf
@@ -8,13 +15,6 @@ from pettingzoo.classic import tictactoe_v3
 #     print('GPU found')
 # else:
 #     print("No GPU found")
-
-from src.q_learning.adversarial_q_learning import AdversarialQLearning
-from src.q_learning.agent.agent import Agent
-from src.q_learning.network.dqn import DQN
-from src.q_learning.policies.epsilon_greedy_policy import EpsilonGreedyPolicy
-from src.q_learning.policies.greedy_policy import GreedyPolicy
-from src.q_learning.transition_table.transition_table import TransitionTable
 
 env = tictactoe_v3.env()
 env.reset()
@@ -30,8 +30,10 @@ for agent_name in env.agents:
     transition_table = TransitionTable()
     behavior_policy = EpsilonGreedyPolicy(q_network=q_network, epsilon_end=0.2)
     target_policy = GreedyPolicy(q_network=target_q_network)
-    agent = Agent(q_network=q_network, target_q_network=target_q_network, transition_table=transition_table,
-                  behavior_policy=behavior_policy, target_policy=target_policy, agent_name=agent_name)
+    agent = AdversarialQLearningAgent(q_network=q_network, target_q_network=target_q_network,
+                                      transition_table=transition_table,
+                                      behavior_policy=behavior_policy, target_policy=target_policy,
+                                      agent_name=agent_name, trainable=True)
 
     agents.append(agent)
 

@@ -3,6 +3,7 @@ from datetime import datetime
 
 import tensorflow as tf
 
+from src.q_learning.agent.adversarial_q_learning_agent import AdversarialQLearningAgent
 from src.q_learning.agent.agent import Agent
 from src.q_learning.logs import tf_log_parent_dir
 from src.q_learning.network.dqn import DQN
@@ -12,7 +13,7 @@ from src.q_learning.saved_models import saved_model_parent_dir
 
 
 class AdversarialQLearning:
-    def __init__(self, env, num_actions: int, agent_1: Agent, agent_2: Agent):
+    def __init__(self, env, num_actions: int, agent_1: AdversarialQLearningAgent, agent_2: AdversarialQLearningAgent):
         self.env = env
         self.num_actions = num_actions
         self.agent_1 = agent_1
@@ -137,7 +138,7 @@ class AdversarialQLearning:
     def evaluate_against_random_agent(self, agent: Agent, agent_moves_first: bool):
         random_policy = RandomPolicy(num_actions=self.num_actions)
         random_agent = Agent(q_network=None, target_q_network=None, transition_table=None, behavior_policy=None,
-                             target_policy=random_policy, agent_name="Random_Player", is_trainable=False)
+                             target_policy=random_policy, agent_name="Random_Player", trainable=False)
 
         agents = [random_agent, agent]
         if agent_moves_first:
