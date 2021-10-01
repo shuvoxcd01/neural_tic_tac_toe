@@ -15,7 +15,7 @@ class QLearning:
         self.trainable_agents = [agent for agent in self.agents.values() if agent.trainable]
 
         self.gamma = 0.9
-        self.learning_rate = 0.01
+        self.learning_rate = 0.001
         self.batch_size = 64
 
         self.optimizer = tf.optimizers.SGD(learning_rate=self.learning_rate)
