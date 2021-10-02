@@ -25,9 +25,9 @@ input_shape = (3, 3, 2)
 num_actions = 9
 
 agents = []
-agent_network_parent_dir = os.path.join(saved_model_parent_dir, "20211001-143538", "adversarial_training")
-agent_1_path = os.path.join(agent_network_parent_dir, "player_1_101")
-agent_2_path = os.path.join(agent_network_parent_dir, "player_2_101")
+agent_network_parent_dir = os.path.join(saved_model_parent_dir, "adversarial_training_1", "adversarial_training")
+agent_1_path = os.path.join(agent_network_parent_dir, "player_1_100")
+agent_2_path = os.path.join(agent_network_parent_dir, "player_2_100")
 
 agent_paths = [agent_1_path, agent_2_path]
 
@@ -53,4 +53,4 @@ agent_1 = agents[0]
 agent_2 = agents[1]
 
 adversarial_q_learning = AdversarialQLearning(env=env, num_actions=num_actions, agent_1=agent_1, agent_2=agent_2)
-adversarial_q_learning.train_adversarial(num_iterations=100)
+adversarial_q_learning.train_adversarial(num_iterations=1000)

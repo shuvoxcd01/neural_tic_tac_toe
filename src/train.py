@@ -10,7 +10,7 @@ from src.adversarial_q_learning.transition_table.transition_table import Transit
 # import os
 # os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 # import tensorflow as tf
-#
+
 # if tf.test.gpu_device_name():
 #     print('GPU found')
 # else:
@@ -43,4 +43,4 @@ agent_1 = agents[0]
 agent_2 = agents[1]
 
 adversarial_q_learning = AdversarialQLearning(env=env, num_actions=num_actions, agent_1=agent_1, agent_2=agent_2)
-adversarial_q_learning.train_adversarial(num_iterations=100)
+adversarial_q_learning.train_adversarial(num_iterations=1000)

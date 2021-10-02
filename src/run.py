@@ -23,7 +23,7 @@ input_shape = (3, 3, 2)
 num_actions = 9
 
 q_network = DQN.get_q_network(input_shape=input_shape, num_actions=num_actions)
-saved_model_path = os.path.join(saved_model_parent_dir, "20211001-143538", "adversarial_training", "player_2_101")
+saved_model_path = os.path.join(saved_model_parent_dir, "20211002-105355", "adversarial_training", "player_2_150")
 target_q_network = tf.keras.models.load_model(saved_model_path)
 
 target_policy = GreedyPolicy(q_network=target_q_network)
