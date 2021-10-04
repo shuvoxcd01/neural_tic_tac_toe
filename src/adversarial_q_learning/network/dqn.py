@@ -20,6 +20,15 @@ class DQN:
         return model
 
     @staticmethod
+    def get_weights(model: Sequential):
+        weights = {}
+
+        for weight in model.trainable_weights:
+            weights[weight.name] = weight
+
+        return weights
+
+    @staticmethod
     def clone(model):
         cloned_model = clone_model(model=model)
         cloned_model.set_weights(model.get_weights())
