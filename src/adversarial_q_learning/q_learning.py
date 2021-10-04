@@ -140,12 +140,37 @@ class QLearning:
         return avg_loss_per_trainable_agent
 
     def write_logs(self, agent, step):
+        self._log_loss_and_epsilon(agent, step)
+        self._log_weights_distributions(agent, step)
+        self._log_gradient(agent, step)
+
+    def _log_loss_and_epsilon(self, agent, step):
         with self.file_writer.as_default():
             loss = self.compute_loss(agent, batch_size=16)
             tf.summary.scalar(f"[{agent.name}] Loss", loss, step=step)
             tf.summary.scalar(f"[{agent.name}] Epsilon", agent.behavior_policy.epsilon,
                               step=step)
             tf.summary.flush()
+
+    def _log_weights_distributions(self, agent, step):
+        weights = DQN.get_weights(agent.target_q_network)
+
+        with self.file_writer.as_default():
+            for layer_name in weights:
+                tf.summary.histogram(name=f"[{agent.name}] [{layer_name}] Distribution", data=weights[layer_name],
+                                     step=step)
+                tf.summary.flush()
+
+    def _log_gradient(self, agent, step):
+        with tf.GradientTape(persistent=True) as tape:
+            loss = self.compute_loss(agent, self.batch_size)
+
+        weights = DQN.get_weights(agent.target_q_network)
+
+        with self.file_writer.as_default():
+            for layer_name in weights:
+                gradients = tape.gradient(loss, weights[layer_name])
+                tf.summary.histogram(name=f"{agent.name} Gradients", data=gradients, step=step)
 
     @staticmethod
     def get_step_count(agent_name):
