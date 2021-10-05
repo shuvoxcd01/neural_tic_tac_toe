@@ -23,18 +23,18 @@ input_shape = (3, 3, 2)
 num_actions = 9
 
 q_network = DQN.get_q_network(input_shape=input_shape, num_actions=num_actions)
-saved_model_path = os.path.join(saved_model_parent_dir, "20211002-105355", "adversarial_training", "player_2_150")
+saved_model_path = os.path.join(saved_model_parent_dir, "20211002-105355", "adversarial_training", "player_1_300")
 target_q_network = tf.keras.models.load_model(saved_model_path)
 
 target_policy = GreedyPolicy(q_network=target_q_network)
 dqn_agent = Agent(q_network=None, target_q_network=target_q_network, transition_table=None,
-                  behavior_policy=None, target_policy=target_policy, agent_name="DQN_Agent")
+                  behavior_policy=None, target_policy=target_policy, agent_name="DQN_Agent", trainable=False)
 
 human_policy = HumanPolicy(num_actions=num_actions)
 human_agent = Agent(q_network=None, target_q_network=None, transition_table=None, behavior_policy=None,
-                    target_policy=human_policy, agent_name="Human_Agent")
+                    target_policy=human_policy, agent_name="Human_Agent", trainable=False)
 
-agents = [human_agent, dqn_agent]
+agents = [dqn_agent, human_agent]
 
 env.reset()
 env.render()
