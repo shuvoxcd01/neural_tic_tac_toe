@@ -11,13 +11,22 @@ class DQN:
         model = Sequential()
         model.add(InputLayer(input_shape=input_shape))
         model.add(Flatten())
-        model.add(Dense(units=100, activation="relu"))
-        model.add(Dense(units=250, activation="relu"))
+        model.add(Dense(units=100, activation='relu'))
+        model.add(Dense(units=250, activation='relu'))
         model.add(Dense(units=100, activation='relu'))
         model.add(Dense(units=50, activation='relu'))
         model.add(Dense(units=num_actions))
 
         return model
+
+    @staticmethod
+    def get_weights(model: Sequential):
+        weights = {}
+
+        for weight in model.trainable_weights:
+            weights[weight.name] = weight
+
+        return weights
 
     @staticmethod
     def clone(model):

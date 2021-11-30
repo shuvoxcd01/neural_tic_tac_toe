@@ -1,13 +1,14 @@
 import random
 
 import numpy as np
-
-from src.q_learning.policies.policy import Policy
 import tensorflow as tf
+
+from src.adversarial_q_learning.network.dqn import DQN
+from src.adversarial_q_learning.policies.policy import Policy
 
 
 class EpsilonGreedyPolicy(Policy):
-    def __init__(self, q_network, epsilon_start=1.0, epsilon_end=0.1, epsilon_endt=100000):
+    def __init__(self, q_network, epsilon_start=1.0, epsilon_end=0.2, epsilon_endt=1000):
         self.q_network = q_network
         self.epsilon = epsilon_start
         self.num_moves = self.q_network.output_shape[-1]
@@ -35,3 +36,12 @@ class EpsilonGreedyPolicy(Policy):
     def update_epsilon(self):
         self.epsilon = self.epsilon_end if self.epsilon <= self.epsilon_end else (
                 self.epsilon - self.epsilon_decay_rate)
+
+    def get_q_network(self):
+        return DQN.clone(self.q_network)
+
+    def set_q_network(self, q_network):
+        self.q_network = q_network
+
+    def reset_epsilon(self):
+        self.epsilon = self.epsilon_start
